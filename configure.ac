@@ -25,4 +25,4 @@ LT_INIT
 
 # Checks for library functions.
 
-AC_OUTPUT(Makefile src/Makefile)
+AC_OUTPUT(Makefile src/Makefile tests/Makefile)

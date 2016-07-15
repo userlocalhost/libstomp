@@ -11,7 +11,7 @@
 #define LD_MAX (256)
 
 struct data_entry {
-  char *data;
+  char data[LD_MAX];
   int len;
   struct list_head list;
 };
@@ -50,6 +50,8 @@ static int set_frame_data(struct list_head *head, pthread_mutex_t *mutex, char *
   if(entry == NULL) {
     return RET_ERROR;
   }
+  INIT_LIST_HEAD(&entry->list);
+
   strncpy(entry->data, data, len);
 
   pthread_mutex_lock(mutex);
@@ -94,6 +96,7 @@ int frame_set_cmd(frame_t *frame, char *data, int len) {
   }
 
   strncpy(frame->cmd, data, len);
+  frame->cmd_len = len;
 
   return RET_SUCCESS;
 }
