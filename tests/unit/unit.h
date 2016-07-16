@@ -4,6 +4,7 @@
 #include <CUnit/CUnit.h>
 
 int test_frame(CU_pSuite);
+int test_connection(CU_pSuite);
 
 #define CU_SUCCESS 0
 #define CU_ERROR -1

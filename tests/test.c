@@ -16,6 +16,7 @@ int main(int argc, char **argv) {
   CU_initialize_registry();
 
   ADD_TESTS(test_frame);
+  ADD_TESTS(test_conn);
 
   CU_basic_run_tests();
 
