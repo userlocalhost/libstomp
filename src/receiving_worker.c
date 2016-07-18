@@ -1,4 +1,6 @@
-#include <stomp/worker_receiver.h>
+#define _GNU_SOURCE
+
+#include <stomp/receiving_worker.h>
 #include <stomp/common.h>
 #include <stomp/frame.h>
 #include <stomp/stomp.h>
@@ -8,6 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <pthread.h>
 
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -71,6 +74,8 @@ static void prepare_frame(struct receiver_info_t *rinfo) {
 
   if(rinfo->frame == NULL) {
     rinfo->frame = frame_init();
+
+    SET(rinfo->frame, STATUS_BORN);
   }
 }
 
@@ -301,8 +306,6 @@ static int making_frame(char *recv_data, int len, struct receiver_info_t *rinfo)
         if(is_body_input > 0) {
           next++;
         }
-      } else if(ret < 0) {
-        printf("[ERROR] (maing_frame) failed to parse frame\n");
       }
     }
 
@@ -332,14 +335,18 @@ void *receiving_worker(void *arg) {
   }
   rinfo->session = session;
 
-  int len;
   do {
-    memset(buf, 0, RECV_BUFSIZE);
-
-    len = recv(session->conn->sock, buf, sizeof(buf), 0);
-
-    making_frame(buf, len, rinfo);
-  } while(len != 0);
+    if(session->conn != NULL && session->conn->sock > 0) {
+      memset(buf, 0, RECV_BUFSIZE);
+  
+      int len = recv(session->conn->sock, buf, sizeof(buf), 0);
+  
+      making_frame(buf, len, rinfo);
+    } else {
+      // It's means that the session with STOMP server is not established yet.
+      pthread_yield();
+    }
+  } while(session->receiving_worker_status != WORKER_STATUS_STOP);
 
   return NULL;
 }

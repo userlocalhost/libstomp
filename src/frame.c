@@ -7,8 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-
-#define LD_MAX (256)
+#include <stdio.h>
 
 struct data_entry {
   char data[LD_MAX];
@@ -22,6 +21,9 @@ static frame_t *alloc_frame() {
   f = (frame_t *)malloc(sizeof(frame_t));
   if(f != NULL) {
     f->cmd = NULL;
+
+    // mainly used by reciever in parsing processing
+    f->status = 0;
 
     INIT_LIST_HEAD(&f->h_headers);
     INIT_LIST_HEAD(&f->h_body);
@@ -53,6 +55,7 @@ static int set_frame_data(struct list_head *head, pthread_mutex_t *mutex, char *
   INIT_LIST_HEAD(&entry->list);
 
   strncpy(entry->data, data, len);
+  entry->len = len;
 
   pthread_mutex_lock(mutex);
   {

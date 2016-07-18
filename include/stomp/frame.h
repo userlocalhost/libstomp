@@ -5,9 +5,12 @@
 #include <stomp/list.h>
 #include <pthread.h>
 
+#define LD_MAX (256)
+
 typedef struct frame_t {
   char *cmd;
   int cmd_len;
+  int status;
   struct list_head h_headers;
   struct list_head h_body;
   pthread_mutex_t mutex_headers;

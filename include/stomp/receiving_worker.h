@@ -3,4 +3,8 @@
 
 void *receiving_worker(void *);
 
+enum receiving_worker_status {
+  WORKER_STATUS_STOP = (1 << 0),
+};
+
 #endif

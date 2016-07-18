@@ -56,8 +56,12 @@ int conn_send(connection_t *c, char *data, int len) {
   return send(c->sock, data, len, 0);
 }
 
-void conn_cleanup(connection_t *c) {
-  close(c->sock);
+void conn_cleanup(connection_t *conn) {
+  if(conn != NULL) {
+    if(conn->sock > 0) {
+      close(conn->sock);
+    }
+  }
 
-  free_conn(c);
+  free_conn(conn);
 }
