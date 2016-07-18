@@ -96,6 +96,7 @@ int frame_set_cmd(frame_t *frame, char *data, int len) {
     if(frame->cmd == NULL) {
       return RET_ERROR;
     }
+    memset(frame->cmd, 0, LD_MAX);
   }
 
   strncpy(frame->cmd, data, len);
@@ -149,6 +150,9 @@ int frame_send(frame_t *frame, connection_t *conn) {
 
   // send command
   sent_bytes += conn_send(conn, frame->cmd, frame->cmd_len);
+
+  // send separation of headers
+  sent_bytes += conn_send(conn, "\n", 1);
 
   // send headers data
   sent_bytes += do_send_data(conn, &frame->h_headers, &frame->mutex_headers);

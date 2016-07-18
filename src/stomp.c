@@ -70,7 +70,7 @@ int stomp_connect(session_t *session, char *host, int port, char *userid, char *
     return RET_ERROR;
   }
 
-  frame_set_cmd(frame, "CONNECT\n", 8);
+  frame_set_cmd(frame, "CONNECT", 7);
   frame_set_header(frame, "content-length:0\n", 17);
   frame_set_header(frame, "content-type:text/plain; charset=UTF-8\n", 39);
 
@@ -90,13 +90,14 @@ int stomp_connect(session_t *session, char *host, int port, char *userid, char *
 frame_t *stomp_recv(session_t *session) {
   struct timespec time;
   time_t timeout;
+  frame_t *frame = NULL;
 
   if(clock_gettime(CLOCK_REALTIME, &time) == 0) {
     timeout = time.tv_sec + DEFAULT_TIMEOUT_SEC;
 
     do {
       if(! list_empty(&session->h_frames)) {
-        frame_t *frame = list_first_entry(&session->h_frames, frame_t, list);
+        frame = list_first_entry(&session->h_frames, frame_t, list);
 
         pthread_mutex_lock(&session->mutex_frames);
         {
@@ -104,14 +105,14 @@ frame_t *stomp_recv(session_t *session) {
         }
         pthread_mutex_unlock(&session->mutex_frames);
 
-        return frame;
+        break;
       }
 
       clock_gettime(CLOCK_REALTIME_COARSE, &time);
     } while(time.tv_sec < timeout);
   }
 
-  return NULL;
+  return frame;
 }
 
 int stomp_disconnect(session_t *session) {

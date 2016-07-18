@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <errno.h>
+#include <string.h>
 #include <pthread.h>
 
 #include <stomp/common.h>
@@ -45,7 +46,10 @@ static void check_connect() {
   CU_ASSERT(stomp_connect(session, SERVER_HOST, SERVER_PORT, AUTH_USERID, AUTH_PASSWD) == RET_SUCCESS);
 
   frame_t *frame = stomp_recv(session);
+
   CU_ASSERT(frame != NULL);
+  CU_ASSERT(strncmp(frame->cmd, "CONNECTED", 9) == 0);
+  CU_ASSERT(frame->cmd_len == 9);
 }
 
 int test_stomp(CU_pSuite suite) {

@@ -2,6 +2,7 @@
 #define __STOMP_H__
 
 #include <stomp/list.h>
+#include <stomp/frame.h>
 #include <stomp/connection.h>
 
 #include <pthread.h>
@@ -20,5 +21,6 @@ void stomp_cleanup(session_t *);
 
 int stomp_connect(session_t *, char *, int, char *, char *);
 int stomp_disconnect(session_t *);
+frame_t *stomp_recv(session_t *);
 
 #endif
