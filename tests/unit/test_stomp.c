@@ -15,6 +15,8 @@
 #define AUTH_USERID "guest"
 #define AUTH_PASSWD "guest"
 
+#define TEST_QNAME "/queue/test"
+
 static session_t *session;
 
 static void check_init(void) {
@@ -40,6 +42,7 @@ static void check_cleanup(void) {
 
 static void check_connect() {
   struct list_head *p;
+  frame_t *frame;
 
   CU_ASSERT_FATAL(session != NULL);
 
@@ -47,10 +50,29 @@ static void check_connect() {
   CU_ASSERT(stomp_connect(session, SERVER_HOST, SERVER_PORT, AUTH_USERID, AUTH_PASSWD) == RET_SUCCESS);
 
   // checking to receive CONNECTED frame successfully
-  frame_t *frame = stomp_recv(session);
+  frame = stomp_recv(session);
   CU_ASSERT(frame != NULL);
   CU_ASSERT(strncmp(frame->cmd, "CONNECTED", 9) == 0);
   CU_ASSERT(frame->cmd_len == 9);
+}
+
+static void check_send() {
+  CU_ASSERT_FATAL(session != NULL);
+
+  CU_ASSERT(stomp_send(session, TEST_QNAME, "hogefuga", 8) == RET_SUCCESS);
+}
+
+static void check_subscribe() {
+  frame_t *frame;
+
+  CU_ASSERT_FATAL(session != NULL);
+
+  CU_ASSERT(stomp_subscribe(session, TEST_QNAME) == RET_SUCCESS);
+
+  frame = stomp_recv(session);
+  CU_ASSERT(frame != NULL);
+  CU_ASSERT(strncmp(frame->cmd, "MESSAGE", 7) == 0);
+  CU_ASSERT(frame->cmd_len == 7);
 }
 
 static void check_disconnect() {
@@ -68,6 +90,8 @@ int test_stomp(CU_pSuite suite) {
 
   CU_add_test(suite, "initialization", check_init);
   CU_add_test(suite, "connect to server", check_connect);
+  CU_add_test(suite, "send message to server", check_send);
+  CU_add_test(suite, "subscribe message from server", check_subscribe);
   CU_add_test(suite, "disconnect to server", check_disconnect);
   CU_add_test(suite, "cleanup", check_cleanup);
 

@@ -87,6 +87,69 @@ int stomp_connect(session_t *session, char *host, int port, char *userid, char *
   return RET_SUCCESS;
 }
 
+int stomp_send(session_t *session, char *dest, char *data, int datalen) {
+  frame_t *frame;
+  char hdr_context[LD_MAX] = {0};
+  int hdr_len;
+
+  if(session->conn == NULL) {
+    return RET_ERROR;
+  }
+
+  frame = frame_init();
+  if(frame == NULL) {
+    return RET_ERROR;
+  }
+
+  frame_set_cmd(frame, "SEND", 4);
+
+  // set headers
+  hdr_len = sprintf(hdr_context, "destination:%s\n", dest);
+  frame_set_header(frame, hdr_context, hdr_len);
+  hdr_len = sprintf(hdr_context, "content-len:%d\n", datalen);
+  frame_set_header(frame, hdr_context, hdr_len);
+
+  frame_set_header(frame, "content-type:text/plain; charset=UTF-8\n", 39);
+
+  // set body
+  frame_set_body(frame, data, datalen);
+
+  frame_send(frame, session->conn);
+
+  frame_free(frame);
+
+  return RET_SUCCESS;
+}
+
+int stomp_subscribe(session_t *session, char *dest) {
+  frame_t *frame;
+  char hdr_context[LD_MAX] = {0};
+  int hdr_len;
+
+  if(session->conn == NULL) {
+    return RET_ERROR;
+  }
+
+  frame = frame_init();
+  if(frame == NULL) {
+    return RET_ERROR;
+  }
+
+  frame_set_cmd(frame, "SUBSCRIBE", 9);
+
+  // set headers
+  hdr_len = sprintf(hdr_context, "destination:%s\n", dest);
+  frame_set_header(frame, hdr_context, hdr_len);
+  frame_set_header(frame, "content-length:0\n", 17);
+  frame_set_header(frame, "content-type:text/plain; charset=UTF-8\n", 39);
+
+  frame_send(frame, session->conn);
+
+  frame_free(frame);
+
+  return RET_SUCCESS;
+}
+
 int stomp_disconnect(session_t *session) {
   frame_t *frame;
 
@@ -115,7 +178,7 @@ frame_t *stomp_recv(session_t *session) {
   time_t timeout;
   frame_t *frame = NULL;
 
-  if(clock_gettime(CLOCK_REALTIME, &time) == 0) {
+  if(session->conn != NULL && clock_gettime(CLOCK_REALTIME, &time) == 0) {
     timeout = time.tv_sec + DEFAULT_TIMEOUT_SEC;
 
     do {

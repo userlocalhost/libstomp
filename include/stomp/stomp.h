@@ -20,6 +20,8 @@ session_t *stomp_init();
 void stomp_cleanup(session_t *);
 
 int stomp_connect(session_t *, char *, int, char *, char *);
+int stomp_send(session_t *, char *, char *, int);
+int stomp_subscribe(session_t *, char *);
 int stomp_disconnect(session_t *);
 frame_t *stomp_recv(session_t *);
 
