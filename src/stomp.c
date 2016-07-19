@@ -87,6 +87,29 @@ int stomp_connect(session_t *session, char *host, int port, char *userid, char *
   return RET_SUCCESS;
 }
 
+int stomp_disconnect(session_t *session) {
+  frame_t *frame;
+
+  if(session->conn == NULL) {
+    return RET_ERROR;
+  }
+
+  frame = frame_init();
+  if(frame == NULL) {
+    return RET_ERROR;
+  }
+
+  frame_set_cmd(frame, "DISCONNECT", 10);
+  frame_set_header(frame, "content-length:0\n", 17);
+  frame_set_header(frame, "content-type:text/plain; charset=UTF-8\n", 39);
+
+  frame_send(frame, session->conn);
+
+  frame_free(frame);
+
+  return RET_SUCCESS;
+}
+
 frame_t *stomp_recv(session_t *session) {
   struct timespec time;
   time_t timeout;
@@ -113,8 +136,4 @@ frame_t *stomp_recv(session_t *session) {
   }
 
   return frame;
-}
-
-int stomp_disconnect(session_t *session) {
-  return RET_SUCCESS;
 }

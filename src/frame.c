@@ -9,12 +9,6 @@
 #include <assert.h>
 #include <stdio.h>
 
-struct data_entry {
-  char data[LD_MAX];
-  int len;
-  struct list_head list;
-};
-
 static frame_t *alloc_frame() {
   frame_t *f;
 

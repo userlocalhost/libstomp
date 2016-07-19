@@ -31,17 +31,16 @@ struct stomp_frame_info {
   int len;
 };
 static struct stomp_frame_info finfo_arr[] = {
-  {"MESSAGE",     7},
-  {"CONNECTED",   9},
-  {"SUBSCRIBE",   9},
-  {"DISCONNECT",  10},
-  {"STOMP",       5},
-  {"ACK",         3},
-  {"BEGIN",       5},
-  {"COMMIT",      6},
-  {"ABORT",       5},
-  {"NACK",        4},
-  {"UNSUBSCRIBE", 11},
+  {"MESSAGE",      7},
+  {"CONNECTED",    9},
+  {"SUBSCRIBE",    9},
+  {"DISCONNECTED", 12},
+  {"ACK",          3},
+  {"BEGIN",        5},
+  {"COMMIT",       6},
+  {"ABORT",        5},
+  {"NACK",         4},
+  {"UNSUBSCRIBE",  11},
   {0},
 };
 

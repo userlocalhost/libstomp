@@ -20,6 +20,12 @@ typedef struct frame_t {
   struct list_head list;
 } frame_t;
 
+struct data_entry {
+  char data[LD_MAX];
+  int len;
+  struct list_head list;
+};
+
 frame_t *frame_init();
 int frame_set_cmd(frame_t *, char *, int);
 int frame_set_header(frame_t *, char *, int);
