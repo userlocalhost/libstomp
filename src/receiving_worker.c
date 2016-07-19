@@ -23,7 +23,7 @@ struct receiver_info_t {
   char *prev_data;
   int prev_len;
   frame_t *frame;
-  session_t *session;
+  stomp_session_t *session;
 };
 
 struct stomp_frame_info {
@@ -322,7 +322,7 @@ static int making_frame(char *recv_data, int len, struct receiver_info_t *rinfo)
 }
 
 void *receiving_worker(void *arg) {
-  session_t *session = (session_t *)arg;
+  stomp_session_t *session = (stomp_session_t *)arg;
   struct receiver_info_t *rinfo;
   char buf[RECV_BUFSIZE];
 

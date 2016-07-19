@@ -16,10 +16,10 @@
 
 #define DEFAULT_TIMEOUT_SEC 3
 
-static session_t *alloc_session() {
-  session_t *session;
+static stomp_session_t *alloc_session() {
+  stomp_session_t *session;
 
-  session = (session_t *)malloc(sizeof(session_t));
+  session = (stomp_session_t *)malloc(sizeof(stomp_session_t));
   if(session != NULL) {
     session->conn = NULL;
     session->receiving_worker_status = 0;
@@ -31,8 +31,8 @@ static session_t *alloc_session() {
   return session;
 }
 
-session_t *stomp_init() {
-  session_t *session;
+stomp_session_t *stomp_init() {
+  stomp_session_t *session;
 
   session = alloc_session();
 
@@ -41,7 +41,7 @@ session_t *stomp_init() {
   return session;
 }
 
-void stomp_cleanup(session_t *session) {
+void stomp_cleanup(stomp_session_t *session) {
   conn_cleanup(session->conn);
 
   session->receiving_worker_status = WORKER_STATUS_STOP;
@@ -52,7 +52,7 @@ void stomp_cleanup(session_t *session) {
   free(session);
 }
 
-int stomp_connect(session_t *session, char *host, int port, char *userid, char *passwd) {
+int stomp_connect(stomp_session_t *session, char *host, int port, char *userid, char *passwd) {
   frame_t *frame;
   char hdr_userid[LD_MAX] = {0};
   char hdr_passwd[LD_MAX] = {0};
@@ -87,7 +87,7 @@ int stomp_connect(session_t *session, char *host, int port, char *userid, char *
   return RET_SUCCESS;
 }
 
-int stomp_send(session_t *session, char *dest, char *data, int datalen) {
+int stomp_send(stomp_session_t *session, char *dest, char *data, int datalen) {
   frame_t *frame;
   char hdr_context[LD_MAX] = {0};
   int hdr_len;
@@ -121,7 +121,7 @@ int stomp_send(session_t *session, char *dest, char *data, int datalen) {
   return RET_SUCCESS;
 }
 
-int stomp_subscribe(session_t *session, char *dest) {
+int stomp_subscribe(stomp_session_t *session, char *dest) {
   frame_t *frame;
   char hdr_context[LD_MAX] = {0};
   int hdr_len;
@@ -150,7 +150,7 @@ int stomp_subscribe(session_t *session, char *dest) {
   return RET_SUCCESS;
 }
 
-int stomp_disconnect(session_t *session) {
+int stomp_disconnect(stomp_session_t *session) {
   frame_t *frame;
 
   if(session->conn == NULL) {
@@ -173,7 +173,7 @@ int stomp_disconnect(session_t *session) {
   return RET_SUCCESS;
 }
 
-frame_t *stomp_recv(session_t *session) {
+frame_t *stomp_recv(stomp_session_t *session) {
   struct timespec time;
   time_t timeout;
   frame_t *frame = NULL;

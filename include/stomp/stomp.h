@@ -7,22 +7,22 @@
 
 #include <pthread.h>
 
-typedef struct session_t {
+typedef struct stomp_session_t {
   connection_t *conn;
   pthread_t tid_receiving;
   int receiving_worker_status;
 
   struct list_head h_frames;
   pthread_mutex_t mutex_frames;
-} session_t;
+} stomp_session_t;
 
-session_t *stomp_init();
-void stomp_cleanup(session_t *);
+stomp_session_t *stomp_init();
+void stomp_cleanup(stomp_session_t *);
 
-int stomp_connect(session_t *, char *, int, char *, char *);
-int stomp_send(session_t *, char *, char *, int);
-int stomp_subscribe(session_t *, char *);
-int stomp_disconnect(session_t *);
-frame_t *stomp_recv(session_t *);
+int stomp_connect(stomp_session_t *, char *, int, char *, char *);
+int stomp_send(stomp_session_t *, char *, char *, int);
+int stomp_subscribe(stomp_session_t *, char *);
+int stomp_disconnect(stomp_session_t *);
+frame_t *stomp_recv(stomp_session_t *);
 
 #endif

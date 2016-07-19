@@ -17,7 +17,7 @@
 
 #define TEST_QNAME "/queue/test"
 
-static session_t *session;
+static stomp_session_t *session;
 
 static void check_init(void) {
   session = stomp_init();
@@ -29,8 +29,6 @@ static void check_cleanup(void) {
   pthread_t worker_id;
 
   CU_ASSERT_FATAL(session != NULL);
-
-  sleep(0.5);
 
   worker_id = session->tid_receiving;
 
