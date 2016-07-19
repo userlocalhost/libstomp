@@ -43,13 +43,21 @@ static void check_connect() {
 
   CU_ASSERT_FATAL(session != NULL);
 
+  // checking to send CONNECT frame successfully
   CU_ASSERT(stomp_connect(session, SERVER_HOST, SERVER_PORT, AUTH_USERID, AUTH_PASSWD) == RET_SUCCESS);
 
+  // checking to receive CONNECTED frame successfully
   frame_t *frame = stomp_recv(session);
-
   CU_ASSERT(frame != NULL);
   CU_ASSERT(strncmp(frame->cmd, "CONNECTED", 9) == 0);
   CU_ASSERT(frame->cmd_len == 9);
+}
+
+static void check_disconnect() {
+  CU_ASSERT_FATAL(session != NULL);
+
+  // checking to send DISCONNECT frame successfully
+  CU_ASSERT(stomp_disconnect(session) == RET_SUCCESS);
 }
 
 int test_stomp(CU_pSuite suite) {
@@ -60,6 +68,7 @@ int test_stomp(CU_pSuite suite) {
 
   CU_add_test(suite, "initialization", check_init);
   CU_add_test(suite, "connect to server", check_connect);
+  CU_add_test(suite, "disconnect to server", check_disconnect);
   CU_add_test(suite, "cleanup", check_cleanup);
 
   return CU_SUCCESS;
