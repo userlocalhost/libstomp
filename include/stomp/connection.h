@@ -1,7 +1,7 @@
 #ifndef __CONNECTION_H__
 #define __CONNECTION_H__
 
-#define QUEUELEN (1<<10)
+#define QUEUELEN (1<<16)
 
 typedef struct connection_t {
   int sock;

@@ -9,6 +9,38 @@
 #include <assert.h>
 #include <stdio.h>
 
+#define MAX_DATA_CHUNK (1<<22)
+
+static struct data_entry *alloc_entry(int datalen) {
+  struct data_entry *entry;
+
+  entry = (struct data_entry *)malloc(sizeof(struct data_entry));
+  if(entry != NULL) {
+    int len = datalen;
+    if(len > MAX_DATA_CHUNK) {
+      len = MAX_DATA_CHUNK;
+    }
+
+    entry->data = (char *)malloc(len + 1);
+    if(entry->data == NULL) {
+      free(entry);
+      return NULL;
+    }
+    entry->len = len;
+
+    INIT_LIST_HEAD(&entry->list);
+  }
+
+  return entry;
+}
+
+static void free_entry(struct data_entry *entry) {
+  if(entry != NULL) {
+    free(entry->data);
+    free(entry);
+  }
+}
+
 static frame_t *alloc_frame() {
   frame_t *f;
 
@@ -35,21 +67,17 @@ static void free_list_entry(struct list_head *head) {
 
   list_for_each_entry_safe(entry, e, head, list) {
     list_del(&entry->list);
-    free(entry->data);
+    free_entry(entry);
   }
 }
 
 static int set_frame_data(struct list_head *head, pthread_mutex_t *mutex, char *data, int len) {
   struct data_entry *entry;
 
-  entry = (struct data_entry *)malloc(sizeof(struct data_entry));
-  if(entry == NULL) {
-    return RET_ERROR;
-  }
-  INIT_LIST_HEAD(&entry->list);
+  entry = alloc_entry(len);
 
-  strncpy(entry->data, data, len);
-  entry->len = len;
+  strncpy(entry->data, data, entry->len);
+  entry->data[entry->len] = '\0';
 
   pthread_mutex_lock(mutex);
   {
@@ -82,19 +110,19 @@ int frame_set_cmd(frame_t *frame, char *data, int len) {
   assert(data != NULL);
 
   if(len > LD_MAX) {
-    return RET_ERROR;
+    len = LD_MAX;
   }
 
   if(frame->cmd == NULL) {
-    frame->cmd = (char *)malloc(LD_MAX);
+    frame->cmd = (char *)malloc(LD_MAX + 1);
     if(frame->cmd == NULL) {
       return RET_ERROR;
     }
-    memset(frame->cmd, 0, LD_MAX);
   }
 
   strncpy(frame->cmd, data, len);
   frame->cmd_len = len;
+  frame->cmd[len] = '\0';
 
   return RET_SUCCESS;
 }

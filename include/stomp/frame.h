@@ -5,7 +5,8 @@
 #include <stomp/list.h>
 #include <pthread.h>
 
-#define LD_MAX (256)
+#define LD_MAX (1024)
+#define MAX_DATA_CHUNK (1<<22)
 
 typedef struct frame_t {
   char *cmd;
@@ -21,7 +22,7 @@ typedef struct frame_t {
 } frame_t;
 
 struct data_entry {
-  char data[LD_MAX];
+  char *data;
   int len;
   struct list_head list;
 };

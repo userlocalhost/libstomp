@@ -81,7 +81,6 @@ int stomp_connect(stomp_session_t *session, char *host, int port, char *userid, 
   frame_set_header(frame, hdr_passwd, len_passwd);
 
   frame_send(frame, session->conn);
-
   frame_free(frame);
 
   return RET_SUCCESS;

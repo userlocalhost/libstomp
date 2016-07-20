@@ -140,7 +140,7 @@ static int frame_update(char *line, int len, struct receiver_info_t *rinfo) {
       return -1;
     }
   } else if(GET(frame, STATUS_INPUT_HEADER)) {
-    if(IS_NL(line)) {
+    if(IS_NL(line) && !list_empty(&frame->h_headers)) {
       CLR(frame);
       SET(frame, STATUS_INPUT_BODY);
     } else if(len > 0) {
