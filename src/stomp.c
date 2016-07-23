@@ -172,30 +172,46 @@ int stomp_disconnect(stomp_session_t *session) {
   return RET_SUCCESS;
 }
 
-frame_t *stomp_recv(stomp_session_t *session) {
-  struct timespec time;
-  time_t timeout;
+static frame_t *do_stomp_recv(stomp_session_t *session) {
   frame_t *frame = NULL;
 
-  if(session->conn != NULL && clock_gettime(CLOCK_REALTIME, &time) == 0) {
-    timeout = time.tv_sec + DEFAULT_TIMEOUT_SEC;
+  if(session->conn != NULL && !list_empty(&session->h_frames)) {
+    frame = list_first_entry(&session->h_frames, frame_t, list);
 
-    do {
-      if(! list_empty(&session->h_frames)) {
-        frame = list_first_entry(&session->h_frames, frame_t, list);
-
-        pthread_mutex_lock(&session->mutex_frames);
-        {
-          list_del(&frame->list);
-        }
-        pthread_mutex_unlock(&session->mutex_frames);
-
-        break;
-      }
-
-      clock_gettime(CLOCK_REALTIME_COARSE, &time);
-    } while(time.tv_sec < timeout);
+    pthread_mutex_lock(&session->mutex_frames);
+    {
+      list_del(&frame->list);
+    }
+    pthread_mutex_unlock(&session->mutex_frames);
   }
+
+  return frame;
+}
+
+frame_t *stomp_recv(stomp_session_t *session) {
+  frame_t *frame;
+
+  do {
+    frame = do_stomp_recv(session);
+  } while(frame == NULL);
+
+  return frame;
+}
+
+frame_t *stomp_recv_with_timeout(stomp_session_t *session, int sec) {
+  struct timespec time;
+  time_t timeout;
+  frame_t *frame;
+
+  if(clock_gettime(CLOCK_REALTIME, &time) < 0) {
+    return NULL;
+  }
+
+  timeout = time.tv_sec + sec;
+  do {
+    frame = do_stomp_recv(session);
+    clock_gettime(CLOCK_REALTIME_COARSE, &time);
+  } while(frame == NULL && time.tv_sec < timeout); 
 
   return frame;
 }

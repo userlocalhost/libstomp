@@ -4,7 +4,7 @@
 #include <stomp/frame.h>
 #include <stomp/list.h>
 
-#define LARGE_LEN (300)
+#define LARGE_LEN (LD_MAX + 1)
 
 static frame_t *frame = NULL;
 char data_large[LARGE_LEN];
@@ -22,12 +22,6 @@ static void check_init() {
   CU_ASSERT(frame != NULL);
 }
 
-static void check_set_invalid_command() {
-  CU_ASSERT_FATAL(frame != NULL);
-
-  CU_ASSERT(frame_set_cmd(frame, data_large, LARGE_LEN) == RET_ERROR);
-  CU_ASSERT(frame->cmd_len != LARGE_LEN);
-}
 static void check_set_command() {
   CU_ASSERT_FATAL(frame != NULL);
 
@@ -80,9 +74,6 @@ static void check_free() {
   CU_ASSERT_FATAL(frame != NULL);
 
   frame_free(frame);
-
-  CU_ASSERT(list_empty(&frame->h_headers));
-  CU_ASSERT(list_empty(&frame->h_body));
 }
 
 int test_frame(CU_pSuite suite) {
@@ -94,7 +85,6 @@ int test_frame(CU_pSuite suite) {
   before_processing();
 
   CU_add_test(suite, "test initialize frame_t", check_init);
-  CU_add_test(suite, "test set invalid command data to frame_t", check_set_invalid_command);
   CU_add_test(suite, "test set command data to frame_t", check_set_command);
   CU_add_test(suite, "test set invalid header data to frame_t", check_set_invalid_header);
   CU_add_test(suite, "test set header data to frame_t", check_set_header);

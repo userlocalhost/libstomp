@@ -24,5 +24,6 @@ int stomp_send(stomp_session_t *, char *, char *, int);
 int stomp_subscribe(stomp_session_t *, char *);
 int stomp_disconnect(stomp_session_t *);
 frame_t *stomp_recv(stomp_session_t *);
+frame_t *stomp_recv_with_timeout(stomp_session_t *, int);
 
 #endif

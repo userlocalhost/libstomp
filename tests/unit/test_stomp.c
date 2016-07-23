@@ -16,6 +16,7 @@
 #define AUTH_PASSWD "guest"
 
 #define TEST_QNAME "/queue/test"
+#define CONNECTION_TIMEOUT (3)
 
 static stomp_session_t *session;
 
@@ -48,8 +49,9 @@ static void check_connect() {
   CU_ASSERT(stomp_connect(session, SERVER_HOST, SERVER_PORT, AUTH_USERID, AUTH_PASSWD) == RET_SUCCESS);
 
   // checking to receive CONNECTED frame successfully
-  frame = stomp_recv(session);
-  CU_ASSERT(frame != NULL);
+  frame = stomp_recv_with_timeout(session, CONNECTION_TIMEOUT);
+
+  CU_ASSERT_FATAL(frame != NULL);
   CU_ASSERT(strncmp(frame->cmd, "CONNECTED", 9) == 0);
   CU_ASSERT(frame->cmd_len == 9);
 }
