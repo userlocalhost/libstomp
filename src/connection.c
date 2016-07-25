@@ -1,6 +1,7 @@
 #include <stomp/connection.h>
 
 #include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -28,10 +29,15 @@ static void free_conn(connection_t *c) {
 connection_t *conn_init(char *host, int port) {
   struct sockaddr_in addr;
   connection_t *conn = NULL;
-  int sd;
+  int sd, flag;
  
   if((sd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
     return NULL;
+  }
+
+  flag = 1;
+  if(setsockopt(sd, IPPROTO_TCP, TCP_NODELAY, (char *)&flag, sizeof(flag)) < 0) {
+    printf("[warning] Couldn't setsockopt(TCP_NODELAY)\n");
   }
  
   addr.sin_family = AF_INET;
